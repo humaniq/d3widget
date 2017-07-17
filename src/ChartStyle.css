@@ -32,8 +32,8 @@
 
 .tooltip {
   position: absolute;
-  color: #fff;
-  background: #303030;
+  color: #000;
+  background: #fff;
   border: 0;
   border-radius: 4px;
   pointer-events: none;
@@ -41,5 +41,9 @@
   padding: 8px;
   font: 12px sans-serif;
   margin-left: 50px;
-  min-width: 160px; }
+  min-width: 120px; 
+  -webkit-box-shadow: 10px 10px 42px -6px rgba(0,0,0,0.75);
+  -moz-box-shadow: 10px 10px 42px -6px rgba(0,0,0,0.75);
+  box-shadow: 10px 10px 42px -6px rgba(0,0,0,0.75);
+}
 

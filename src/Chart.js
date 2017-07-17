@@ -15,12 +15,7 @@ class Chart extends Component {
 
   componentDidMount() {
 
-    this.margin = {
-      top: 0,
-      right: 0,
-      bottom: 0,
-      left: 0,
-    };
+
 
     this.tickFormat = function (date) {
         if(date.getDay() && date.getDate() !== 1) return d3.timeFormat("%d.%m")(date);
@@ -29,16 +24,33 @@ class Chart extends Component {
         return d3.timeFormat("%Y")(date);
     }
 
-    
+    this.margin = {
+      top: +this.props.height / 7,
+      right: 0,
+      bottom: 0,
+      left: 0,
+    };
+
 
     this.width = +this.props.width;
-    this.height = +this.props.height;
+    this.height = +this.props.height - this.margin.top;
     //this.height = (this.width / this.props.aspectRatio) - this.margin.top - this.margin.bottom;
+
+
 
     this.svg = d3.select(this.container)
       .append('svg')
       .attr('width', this.width + this.margin.left + this.margin.right)
       .attr('height', this.height + this.margin.top + this.margin.bottom);
+
+
+    if (!this.props.isSmall) {
+      this.svg.append("rect")
+        .attr("width", this.width)  
+        .attr("height", this.height + this.margin.top) 
+        .style("fill", "#F1F6FA");
+    }
+
 
     // Define the div for the tooltip
     this.tooltip = d3.select(this.container).append('div')
@@ -55,12 +67,7 @@ class Chart extends Component {
       .attr("class", "focus")
       .attr('transform', "translate(" + [this.margin.left, this.margin.top] + ")");
 
-    if (!this.props.isSmall) {
-      this.focus.append("rect")
-        .attr("width", this.width)  
-        .attr("height", this.height) 
-        .style("fill", "#F1F6FA");
-    }
+
 
 
     let axisGroup = this.svg.append("g")
@@ -89,6 +96,60 @@ class Chart extends Component {
 
     this.circlegroup = this.focus.append('g');
 
+    // var defs = this.svg.append("defs");
+
+    // var filter = defs.append("filter")
+    //     .attr("id", "linechart-drop-shadow")
+    //     .attr("width", "130%")
+    //     .attr("height", "130%");
+
+    // filter.append("feGaussianBlur")
+    //     .attr("in", "SourceAlpha")
+    //     .attr("stdDeviation", 3);
+
+
+    // filter.append("feOffset")
+    //     .attr("dx", 1)
+    //     .attr("dy", 1)
+    //     .attr("result", "offsetBlur");
+
+    // var feComponentTransfer = filter.append("feComponentTransfer");
+    //     feComponentTransfer.append("feFuncA")
+    //         .attr("type","linear") 
+    //         .attr("slope",0.2);
+
+    // var feMerge = filter.append("feMerge");
+    //     feMerge.append("feMergeNode");
+    //     feMerge.append("feMergeNode")
+    //            .attr("in", "SourceGraphic");
+
+
+    // this.div = d3.select(this.container).append("div")   
+    //     .attr("class", "linechartTooltip svgTooltip")               
+    //     .style("opacity", 0);
+
+
+    // this.svgTooltip = this.svg.append("g")
+    //   .attr("class","linechartTooltip")
+    //   .style("pointer-events", "none")
+    //   .style("opacity",0)
+
+
+    // this.svgTooltip.append("path")
+    //   .attr("d", "M8 46 L10 48 L32 48 L40 56 L48 48 L54 48 L54 48 L56 46 L56 14 L54 12 L54 12 L54 12 L54 12 L54 12 L10 12 L10 12 L8 14 L8 44 L8 46 Z")
+    //   .attr("fill", "white")
+    //   .attr("stroke","lightgrey")
+    //   .style("filter", "url(#linechart-drop-shadow)")
+    //   .attr("transform", "translate(0, -65)")
+
+    // this.svgTooltip.append("text")
+    //   .attr("class","tooltipText")
+    //   .text("%25")
+    //   .style("font-family", "sans-serif")
+    //   .style("font-size", 13)
+    //   .attr("transform", "translate(18, -28)")
+
+
     this.draw(this.props);
   }
 
@@ -112,7 +173,7 @@ class Chart extends Component {
                 .duration(500);
 
     const parse = d3.timeParse('%Y-%m-%d');
-    //const format = d3.timeFormat('%d.%m.%Y');
+    const format = d3.timeFormat('%d.%m.%Y');
 
     data.forEach(function (d) {
       d.date = parse(d.date);
@@ -155,14 +216,14 @@ class Chart extends Component {
     //           .attr('x', -5)
     //           .attr('transform', 'rotate(-20)');
 
-    // const formatY = (value) => {
-    //   if (value < 1) {
-    //     return value.toFixed(2);
-    //   } else if (value < 10 && value % 1 === 0) {
-    //     return value.toFixed(0);
-    //   }
-    //   return d3.format('.2s')(value);
-    // };
+    const formatY = (value) => {
+      if (value < 1) {
+        return value.toFixed(2);
+      } else if (value < 10 && value % 1 === 0) {
+        return value.toFixed(0);
+      }
+      return d3.format('.2s')(value);
+    };
 
     // const yAxis = d3.axisLeft(this.yScale)
     //   .ticks(props.xTicks)
@@ -205,41 +266,78 @@ class Chart extends Component {
       .attr('d', line(data));
 
     /* circles */ 
-    // let circles = this.circlegroup.selectAll('.dot')
-    //   .data(data)
+    if (!this.props.isSmall) {
+      let circles = this.circlegroup.selectAll('.dot')
+        .data(data)
 
-    // circles.exit().remove();
-    
-    // let circlesEnter = circles.enter().append('circle')
-    //   .attr('class', 'dot')
-    //   .attr('cx', d => component.xScale(d.date))
-    //   .attr('cy', d => component.yScale(d.value))
-    //   .attr('r', () => 4);
+      circles.exit().remove();
+      
+      let circlesEnter = circles.enter().append('circle')
+        .attr('class', 'dot')
+        .attr('cx', d => component.xScale(d.date))
+        .attr('cy', d => component.yScale(d.value))
+        .attr('r', () => 4)
+        .style("opacity", 0);
 
 
-    // circles.merge(circlesEnter)
-    //         .transition(t)
-    //         .attr('cx', d => component.xScale(d.date))
-    //         .attr('cy', d => component.yScale(d.value));
+      circles.merge(circlesEnter)
+              .transition(t)
+              .attr('cx', d => component.xScale(d.date))
+              .attr('cy', d => component.yScale(d.value));
 
-    // circlesEnter
-    //   .on('mouseover', function (d) {
-    //     component.tooltip
-    //       .html(`${format(d.date)}<br/><b>${component.props.title}: </b>${formatY(d.value)}`)
-    //       .style('left', `${d3.select(this).attr('cx')}px`)
-    //       .style('top', `${d3.select(this).attr('cy')}px`)
-    //       .transition()
-    //       .duration(200)
-    //       .style('opacity', 0.9);
-    //     d3.select(this).attr('r', 6);
-    //   })
-    //   .on('mouseout', function () {
-    //     component.tooltip
-    //       .transition()
-    //       .duration(500)
-    //       .style('opacity', 0);
-    //     d3.select(this).attr('r', 4);
-    //   });
+      circlesEnter
+        .on('mouseover', function (d) {
+          component.tooltip
+            .html(`<b>Value: </b>${formatY(d.value)}<br/><b>Date: </b>${format(d.date)}`)
+            .style('left', `${d3.select(this).attr('cx') - 120}px`)
+            .style('top', `${+d3.select(this).attr('cy') + 10}px`)
+            .transition()
+            .duration(200)
+            .style('opacity', 0.9);
+          d3.select(this).attr('r', 6);
+        })
+        .on('mouseout', function () {
+          component.tooltip
+            .transition()
+            .duration(500)
+            .style('opacity', 0);
+          d3.select(this).attr('r', 4);
+        });
+
+    // circlesEnter.on("mouseover", function (d) {
+
+    //   //console.log(this.cx)
+    //   var x = +d3.select(this).attr("cx") - 38;
+    //   var y = +d3.select(this).attr("cy") + component.margin.top;
+
+    //   // d3.select(this).attr("r", "7px")
+    // 	//               .style("fill", (d,i) => component.color(d.name));
+
+    //   d3.select(component.container).select(".linechartTooltip")
+    //       .attr("transform","translate(" + [x, y] + ")")
+    //       .transition()     
+    //       .style("opacity", 1)
+
+    //   d3.select(component.container).select(".linechartTooltip text")
+    //     .text( "%" + Math.round(d.value))    
+    //       // .text(d.name)  
+    //       // .style("left", (d3.event.pageX) + "px")     
+    //       // .style("top", (d3.event.pageY - 28) + "px")
+    // })
+
+    // circlesEnter.on("mouseout", function (d) {
+
+    //   d3.select(this).attr("r", "5px")
+    // 	              .style("fill", (d,i) => "white");
+                    
+    //   d3.select(component.container).select(".linechartTooltip") 
+    //     .transition() 
+    //     .style("opacity", 0)
+
+    // })
+
+
+    }
 
   }
 
