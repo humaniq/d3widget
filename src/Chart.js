@@ -26,9 +26,9 @@ class Chart extends Component {
 
     this.margin = {
       top: +this.props.height / 5,
-      right: 0,
+      right: 5,
       bottom: 0,
-      left: 0,
+      left: 5,
     };
 
 
@@ -47,7 +47,7 @@ class Chart extends Component {
     if (!this.props.isSmall) {
 
       this.svg.append("rect")
-        .attr("width", this.width)  
+        .attr("width", this.width + this.margin.left + this.margin.right)  
         .attr("height", this.height + this.margin.top) 
         .style("fill", "#F1F6FA");
 
@@ -97,13 +97,16 @@ class Chart extends Component {
       .attr('class', 'line')
 
     this.background = this.focus.append("rect")
+        .attr("y", -this.margin.top)
         .attr("width", this.width)  
-        .attr("height", this.height) 
+        .attr("height", this.height + this.margin.top) 
         .style("opacity", 0);
 
 
-    this.circlegroup = this.focus.append('g');
-
+    this.tipCircle = this.focus.append('circle')
+                                    .attr('class', 'dot')
+                                    .attr('r', 4)
+                                    .style("opacity", 0);
    
 
     this.draw(this.props);
@@ -176,93 +179,126 @@ class Chart extends Component {
     /* circles */ 
     if (!this.props.isSmall) {
 
-      let circles = this.circlegroup.selectAll('.dot')
-        .data(data)
+      // let circles = this.circlegroup.selectAll('.dot')
+      //   .data(data)
 
-      circles.exit().remove();
+      // circles.exit().remove();
       
-      let circlesEnter = circles.enter().append('circle')
-        .attr('class', 'dot')
-        .attr('cx', d => component.xScale(d.date))
-        .attr('cy', d => component.yScale(d.value))
-        .attr('r', () => 4)
-        .style("opacity", 0);
+      // let circlesEnter = circles.enter().append('circle')
+      //   .attr('class', 'dot')
+      //   .attr('cx', d => component.xScale(d.date))
+      //   .attr('cy', d => component.yScale(d.value))
+      //   .attr('r', () => 4)
+      //   .style("opacity", 0);
 
 
-      circles.merge(circlesEnter)
-              .transition(t)
-              .attr('cx', d => component.xScale(d.date))
-              .attr('cy', d => component.yScale(d.value));
+      // circles.merge(circlesEnter)
+      //         .transition(t)
+      //         .attr('cx', d => component.xScale(d.date))
+      //         .attr('cy', d => component.yScale(d.value));
 
-      circlesEnter
-        .on('mouseover', function (d) {
+      // circlesEnter
+      //   .on('mouseover', function (d) {
+      //     component.tooltip.select(".m-tooltip__root")
+      //       .html(`<b>Value: </b>${formatY(d.value)}<br/><b>Date: </b>${format(d.date)}`)
+   
+      //     component.tooltip   //d3.event.pageX d3.mouse(this)[0]
+      //       // .style('left', `${+d3.select(this).attr('cx') - 96}px`)
+      //       // .style('top', `${+d3.select(this).attr('cy') - 25}px`)
+      //       .style('left', `${+d3.event.pageX - 96}px`)
+      //       .style('top', `${+d3.event.pageY - 85}px`)
+      //       // .style('left', `${+d3.mouse(this)[0] - 96}px`)
+      //       // .style('top', `${+d3.mouse(this)[1] - 25}px`)
+      //       .transition()
+      //       .duration(200)
+      //       .style('opacity', 1);
+
+      //     d3.select(this).attr('r', 4)
+      //       .style('opacity', 1);
+      //   })
+      //   .on('mouseout', function () {
+      //     component.tooltip
+      //       .transition()
+      //       .duration(500)
+      //       .style('opacity', 0);
+
+      //     d3.select(this).attr('r', 4)
+      //       .style('opacity', 0);
+
+      //   });
+
+      this.background.on('mousemove', function () {
+
+          // var xPos = d3.mouse(this)[0];
+
+          // var pathLength = component.mainLine.node().getTotalLength();
+          // var x = xPos;
+          // var beginning = x,
+          //     end = pathLength,
+          //     target,
+          //     pos;
+          // while (true) {
+          //     target = Math.floor((beginning + end) / 2);
+          //     pos = component.mainLine.node().getPointAtLength(target);
+          //     if ((target === end || target === beginning) && pos.x !== x) {
+          //         break;
+          //     }
+          //     if (pos.x > x) end = target;
+          //     else if (pos.x < x) beginning = target;
+          //     else break; //position found
+          // }
+
+          // component.tooltip.select(".m-tooltip__root")
+          //   .html(`<b>Value: </b>${formatY(component.yScale.invert(pos.y))}<br/><b>Date: </b>${format(component.xScale.invert(pos.x))}`)
+          //   //.html("background")
+   
+          // component.tooltip   //d3.event.pageX d3.mouse(this)[0]
+          //   .style('left', `${+d3.event.pageX - 96}px`)
+          //   .style('top', `${+d3.event.pageY - 85}px`)
+          //   .transition()
+          //   .duration(200)
+          //   .style('opacity', 1);
+
+          let bisectDate = d3.bisector(function(d) { return d.date; }).left;
+
+          let x0 = component.xScale.invert(d3.mouse(this)[0]),
+              i = bisectDate(data, x0, 1),
+              d0 = data[i - 1],
+              d1 = data[i],
+              d = x0 - d0.date > d1.date - x0 ? d1 : d0;
+
           component.tooltip.select(".m-tooltip__root")
             .html(`<b>Value: </b>${formatY(d.value)}<br/><b>Date: </b>${format(d.date)}`)
-   
+
           component.tooltip   //d3.event.pageX d3.mouse(this)[0]
-            // .style('left', `${+d3.select(this).attr('cx') - 96}px`)
-            // .style('top', `${+d3.select(this).attr('cy') - 25}px`)
-            .style('left', `${+d3.event.pageX - 96}px`)
-            .style('top', `${+d3.event.pageY - 85}px`)
+            .style('left', `${+component.xScale(d.date) - 91 + component.svg.node().getBoundingClientRect().left}px`)
+            .style('top', `${+component.yScale(d.value) - 30 + component.svg.node().getBoundingClientRect().top}px`)
+            // .style('left', `${+d3.event.pageX - 96}px`)
+            // .style('top', `${+d3.event.pageY - 85}px`)
             // .style('left', `${+d3.mouse(this)[0] - 96}px`)
             // .style('top', `${+d3.mouse(this)[1] - 25}px`)
             .transition()
             .duration(200)
             .style('opacity', 1);
 
-          d3.select(this).attr('r', 4)
-            .style('opacity', 1);
-        })
-        .on('mouseout', function () {
-          component.tooltip
-            .transition()
-            .duration(500)
-            .style('opacity', 0);
+            component.tipCircle.attr('cx', component.xScale(d.date))
+                               .attr('cy', component.yScale(d.value))
+                               .style("opacity",1);
 
-          d3.select(this).attr('r', 4)
-            .style('opacity', 0);
 
-        });
-
-      this.background.on('mousemove', function () {
-
-          var xPos = d3.mouse(this)[0];
-
-          var pathLength = component.mainLine.node().getTotalLength();
-          var x = xPos;
-          var beginning = x,
-              end = pathLength,
-              target,
-              pos;
-          while (true) {
-              target = Math.floor((beginning + end) / 2);
-              pos = component.mainLine.node().getPointAtLength(target);
-              if ((target === end || target === beginning) && pos.x !== x) {
-                  break;
-              }
-              if (pos.x > x) end = target;
-              else if (pos.x < x) beginning = target;
-              else break; //position found
-          }
-
-          component.tooltip.select(".m-tooltip__root")
-            .html(`<b>Value: </b>${formatY(component.yScale.invert(pos.y))}<br/><b>Date: </b>${format(component.xScale.invert(pos.x))}`)
-            //.html("background")
-   
-          component.tooltip   //d3.event.pageX d3.mouse(this)[0]
-            .style('left', `${+d3.event.pageX - 96}px`)
-            .style('top', `${+d3.event.pageY - 85}px`)
-            .transition()
-            .duration(200)
-            .style('opacity', 1);
-
+          // focus.select("circle.y")
+          //     .attr("transform",
+          //           "translate(" + x(d.date) + "," +
+          //                         y(d.value) + ")");
 
         })
         .on('mouseout', function () {
-          component.tooltip
-            .transition()
-            .duration(500)
-            .style('opacity', 0);
+            component.tooltip
+              .transition()
+              .duration(500)
+              .style('opacity', 0);
+
+            component.tipCircle.style("opacity",0);
 
         });
 

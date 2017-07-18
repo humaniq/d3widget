@@ -44,7 +44,7 @@ class App extends Component {
   }
 
   render() {
-
+    // style={{margin: "auto", width: 800}}
     return (
 
       <div>
