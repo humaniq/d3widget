@@ -106,6 +106,7 @@ class Chart extends Component {
     this.tipCircle = this.focus.append('circle')
                                     .attr('class', 'dot')
                                     .attr('r', 4)
+                                    .style("pointer-events", "none")
                                     .style("opacity", 0);
    
 
