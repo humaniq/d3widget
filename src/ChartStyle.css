@@ -18,9 +18,9 @@
   stroke-width: 1.7px; }
 
 .dot {
-  stroke: #FF9900;
-  stroke-width: 2px;
-  fill: #fff; 
+  stroke: #fff;
+  stroke-width: 1px;
+  fill: #3199DE; 
 }
 
 .dot:hover {
@@ -30,7 +30,7 @@
 .yaxis {
   stroke-width: 1px; }
 
-.tooltip {
+/*.tooltip {
   position: absolute;
   color: #000;
   background: #fff;
@@ -45,5 +45,62 @@
   -webkit-box-shadow: 10px 10px 42px -6px rgba(0,0,0,0.75);
   -moz-box-shadow: 10px 10px 42px -6px rgba(0,0,0,0.75);
   box-shadow: 10px 10px 42px -6px rgba(0,0,0,0.75);
+}*/
+
+.m-tooltip__wrapper {
+  position: absolute;
+  z-index: 1;
+  pointer-events: none;
 }
+.m-tooltip__root {
+  width: 160px;
+  border-radius: 0.8rem;
+  background: white;
+  position: relative;
+  padding: 1rem;
+  font: 12px sans-serif;
+}
+.m-tooltip__root:before {
+  border-radius: 0.9rem;
+  z-index: -1;
+  content: '';
+  display: block;
+  position: absolute;
+  top: -1px;
+  right: -1px;
+  height: 100%;
+  width: 100%;
+  box-shadow: 0 12px 22px 0 rgba(0, 0, 0, 0.24);
+  /*border: 1px solid rgba(0, 0, 0, 0.14);*/
+}
+.m-tooltip__root:after {
+  z-index: -1;
+  background-color: white;
+  content: '';
+  display: block;
+  position: absolute;
+  height: 1.6rem;
+  width: 1.6rem;
+  box-shadow: 0 12px 22px 0 rgba(0, 0, 0, 0.24);
+  transform: translate(-50%, -50%) rotate(45deg);
+  border: 0;  
+  /*border: 1px solid rgba(0, 0, 0, 0.14);*/
+}
+.m-tooltip__root_type_left:after {
+  right: -1.6rem;
+  top: 50%;
+}
+.m-tooltip__root_type_right:after {
+  left: 0;
+  top: 50%;
+}
+.m-tooltip__root_type_top:after {
+  left: 50%;
+  bottom: -1.6rem;
+}
+.m-tooltip__root_type_bottom:after {
+  left: 50%;
+  top: 0;
+}
+
 

@@ -53,9 +53,18 @@ class Chart extends Component {
 
 
     // Define the div for the tooltip
-    this.tooltip = d3.select(this.container).append('div')
-      .attr('class', 'tooltip')
-      .style('opacity', 0);
+    // this.tooltip = d3.select(this.container).append('div')
+    //   .attr('class', 'tooltip')
+    //   .style('opacity', 0);
+
+    if (!this.props.isSmall) {
+      this.tooltip = d3.select(this.container).append('div')
+        .attr('class', 'm-tooltip__wrapper')
+        .style('opacity', 0)
+      this.tooltip  
+          .append('div')
+          .attr('class', 'm-tooltip__root m-tooltip__root_type_top')
+    }
 
     this.xScale = d3.scaleTime()
       .range([0, this.width]);
@@ -163,10 +172,6 @@ class Chart extends Component {
 
   draw(props) {
 
-    let data = props.data;
-
-    
-
     const component = this;
 
     const t = d3.transition()
@@ -175,9 +180,11 @@ class Chart extends Component {
     const parse = d3.timeParse('%Y-%m-%d');
     const format = d3.timeFormat('%d.%m.%Y');
 
-    data.forEach(function (d) {
-      d.date = parse(d.date);
-      d.value = +d.value;
+    let data = props.data.map(function (d) {
+      return {
+        date: parse(d.date),
+        value: +d.value
+      }
     });
 
     const rangeXdata = d3.extent(data, d => d.date);
@@ -287,21 +294,28 @@ class Chart extends Component {
 
       circlesEnter
         .on('mouseover', function (d) {
-          component.tooltip
+          component.tooltip.select(".m-tooltip__root")
             .html(`<b>Value: </b>${formatY(d.value)}<br/><b>Date: </b>${format(d.date)}`)
-            .style('left', `${d3.select(this).attr('cx') - 120}px`)
-            .style('top', `${+d3.select(this).attr('cy') + 10}px`)
+   
+         component.tooltip   
+          .style('left', `${d3.select(this).attr('cx') - 96}px`)
+            .style('top', `${+d3.select(this).attr('cy') - 25}px`)
             .transition()
             .duration(200)
-            .style('opacity', 0.9);
-          d3.select(this).attr('r', 6);
+            .style('opacity', 1);
+
+          d3.select(this).attr('r', 4)
+            .style('opacity', 1);
         })
         .on('mouseout', function () {
           component.tooltip
             .transition()
             .duration(500)
             .style('opacity', 0);
-          d3.select(this).attr('r', 4);
+
+          d3.select(this).attr('r', 4)
+            .style('opacity', 0);
+
         });
 
     // circlesEnter.on("mouseover", function (d) {

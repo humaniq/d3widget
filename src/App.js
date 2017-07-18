@@ -66,7 +66,7 @@ class App extends Component {
             height="50"
             useArea={false}
             isSmall={true}
-            data={this.state.chartDataSmall}
+            data={this.state.chartData}
           />
         </div>        
 
